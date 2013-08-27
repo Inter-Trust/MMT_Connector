@@ -22,8 +22,10 @@ public class MMTClientConnector {
 
     private MMTClientConnectorConfig connectorConfig;
     private MMTProtocolConfig protoConfig;
+    private int serviceID;
     private static final String RemoteProcessRequestType = "Process";
     private static final String TimestampHeaderField = "MMT-Timestamp";
+    private static final String ServiceIDHeaderField = "Service-ID";
     private static final String EventParameterName = "Event";
     private static final String CRLF = "\r\n";
     private static final String SP = " ";
@@ -32,9 +34,10 @@ public class MMTClientConnector {
     /**
      * Default constructor.
      */
-    public MMTClientConnector() {
+    public MMTClientConnector(int serviceID) {
         this.connectorConfig = null;
         this.protoConfig = null;
+        this.serviceID = serviceID;
     }
 
     /**
@@ -167,6 +170,7 @@ public class MMTClientConnector {
     private String createRequestLine(long time, String eventName) {
         String retval = RemoteProcessRequestType + SP + this.getProtoConfig().getProtocolName() + SP + this.getProtoConfig().getProtocolID() + SP + eventName + CRLF;
         retval = retval + TimestampHeaderField + CL + SP + time + CRLF;
+        retval = retval + ServiceIDHeaderField + CL + SP + serviceID + CRLF;
         return retval;
     }
 
@@ -218,4 +222,5 @@ public class MMTClientConnector {
             throw new MMTConnectorException("Connector Exception: Connection returned a response code of \"" + connection.getResponseCode() + "\".", connection.getResponseCode());
         }
     }
+    
 }

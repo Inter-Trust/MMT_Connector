@@ -14,6 +14,7 @@ import com.montimage.mmt.client.exception.MMTConnectorException;
 import com.montimage.mmt.client.exception.MMTInitializationException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -54,7 +55,7 @@ public class MMTClientConnectorTest {
     @Test
     public void testGetConnectorConfig() {
         System.out.println("getConnectorConfig");
-        MMTClientConnector instance = new MMTClientConnector();
+        MMTClientConnector instance = new MMTClientConnector(2);
         MMTClientConnectorConfig expResult = new MMTClientConnectorConfig();
         instance.setConnectorConfig(expResult);
         MMTClientConnectorConfig result = instance.getConnectorConfig();
@@ -68,7 +69,7 @@ public class MMTClientConnectorTest {
     public void testSetConnectorConfig() {
         System.out.println("setConnectorConfig");
         MMTClientConnectorConfig connectorConfig = new MMTClientConnectorConfig();
-        MMTClientConnector instance = new MMTClientConnector();
+        MMTClientConnector instance = new MMTClientConnector(3);
         instance.setConnectorConfig(connectorConfig);
         assertEquals(connectorConfig, instance.getConnectorConfig());
     }
@@ -79,7 +80,7 @@ public class MMTClientConnectorTest {
     @Test
     public void testGetProtoConfig() {
         System.out.println("getProtoConfig");
-        MMTClientConnector instance = new MMTClientConnector();
+        MMTClientConnector instance = new MMTClientConnector(3);
         MMTProtocolConfig expResult = new MMTProtocolConfig(1234, "1234");
         instance.setProtoConfig(expResult);
         MMTProtocolConfig result = instance.getProtoConfig();
@@ -93,7 +94,7 @@ public class MMTClientConnectorTest {
     public void testSetProtoConfig() {
         System.out.println("setProtoConfig");
         MMTProtocolConfig protoConfig = new MMTProtocolConfig(1234, "1234");
-        MMTClientConnector instance = new MMTClientConnector();
+        MMTClientConnector instance = new MMTClientConnector(3);
         instance.setProtoConfig(protoConfig);
         assertEquals(protoConfig, instance.getProtoConfig());
     }
@@ -104,7 +105,7 @@ public class MMTClientConnectorTest {
     @Test
     public void testProcessEvent() throws MMTConnectorException, IOException {
         ArrayList<MMTFieldValueHeader> fieldValueElements = new ArrayList<MMTFieldValueHeader>();
-        MMTClientConnector instance = new MMTClientConnector();
+        MMTClientConnector instance = new MMTClientConnector(3);
         MMTClientConnectorConfig connectorConfig;
         MMTProtocolConfig protoConfig;
 
@@ -113,7 +114,7 @@ public class MMTClientConnectorTest {
         protoConfig = new MMTProtocolConfig(1234, "TestProto");
 
 
-        instance = new MMTClientConnector();
+       // instance = new MMTClientConnector(UUID.randomUUID());
         instance.setConnectorConfig(connectorConfig);
         instance.setProtoConfig(protoConfig);
 
