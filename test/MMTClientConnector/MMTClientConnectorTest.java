@@ -13,8 +13,8 @@ import com.montimage.mmt.client.connector.MMTProtocolConfig;
 import com.montimage.mmt.client.exception.MMTConnectorException;
 import com.montimage.mmt.client.exception.MMTInitializationException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -110,13 +110,17 @@ public class MMTClientConnectorTest {
         MMTProtocolConfig protoConfig;
 
         connectorConfig = new MMTClientConnectorConfig();
+        URL mmt_url = new URL("http://127.0.0.1:4567");
+        connectorConfig.setServerURL(mmt_url);
 
         protoConfig = new MMTProtocolConfig(1234, "TestProto");
+        protoConfig.setEventValidationLevel(MMTProtocolConfig.NoEventValidation);
 
 
        // instance = new MMTClientConnector(UUID.randomUUID());
         instance.setConnectorConfig(connectorConfig);
         instance.setProtoConfig(protoConfig);
+        instance.setPayloadFormat(MMTClientConnector.JSON);
 
         fieldValueElements.add(new GenericFieldValueHeader("TransactionID", "1896548"));
         fieldValueElements.add(new GenericFieldValueHeader("UserID", "Wiss"));
@@ -125,6 +129,7 @@ public class MMTClientConnectorTest {
         long time = System.currentTimeMillis();
         try {
             instance.processEvent(time, "TODO", fieldValueElements);
+            instance.processEvent(time, "AAA", fieldValueElements);
             
         } catch (MMTInitializationException ex) {
             fail("The test case is a prototype.");

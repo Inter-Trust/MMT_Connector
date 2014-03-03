@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.List;
 import org.apache.commons.codec.binary.Base64;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * This is the main access point to MMTClient. It allows to remotely communicate with the MMT-Probe.
@@ -22,6 +24,7 @@ public class MMTClientConnector {
 
     private MMTClientConnectorConfig connectorConfig;
     private MMTProtocolConfig protoConfig;
+    private String payloadFormat;
     private int serviceID;
     private static final String RemoteProcessRequestType = "Process";
     private static final String TimestampHeaderField = "MMT-Timestamp";
@@ -30,9 +33,12 @@ public class MMTClientConnector {
     private static final String CRLF = "\r\n";
     private static final String SP = " ";
     private static final String CL = ":";
+    public static final String JSON = "Json";
+    public static final String RFC2822 = "RFC2822";
 
     /**
      * Default constructor.
+     * @param serviceID the identifier of the service or connector.
      */
     public MMTClientConnector(int serviceID) {
         this.connectorConfig = null;
@@ -55,6 +61,15 @@ public class MMTClientConnector {
     public void setConnectorConfig(MMTClientConnectorConfig connectorConfig) {
         this.connectorConfig = connectorConfig;
     }
+    
+    /**
+     * Sets the clients connector paylaod format.
+     * @param payloadFormat the payload format: It can be Json or field/value (RFC2822).
+     */
+    public void setPayloadFormat(String payloadFormat) {
+        this.payloadFormat = payloadFormat;
+    }
+
 
     /**
      * Returns the clients protocol configuration.
@@ -175,11 +190,34 @@ public class MMTClientConnector {
     }
 
     private String createEventMessage(long time, String eventName, List<MMTFieldValueHeader> fieldValueElements) {
-        String retval = createRequestLine(time, eventName);
-        for (MMTFieldValueHeader fvh : fieldValueElements) {
-            retval = retval + createHeaderLine(fvh);
+        String retval = "";
+        if(this.payloadFormat.equals(this.RFC2822)){
+            retval = createRequestLine(time, eventName);
+            for (MMTFieldValueHeader fvh : fieldValueElements) {
+                retval = retval + createHeaderLine(fvh);
+            }
+            retval = retval + CRLF; //We end the Message with an extra CRLF
         }
-        retval = retval + CRLF; //We end the Message with an extra CRLF
+        
+        if(this.payloadFormat.equals(this.JSON)){
+            MMTEvent mmtevent = new MMTEvent();
+            mmtevent.setProtoName(this.getProtoConfig().getProtocolName());
+            mmtevent.setProtoId(this.getProtoConfig().getProtocolID());
+            Event event = new Event();
+            event.setEventName(eventName);
+            event.setServiceId(serviceID);
+            event.setTimestamp(time);
+            event.setAttributes(fieldValueElements);
+            
+            mmtevent.setEvent(event);
+            
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(GenericFieldValueHeader.class, new FieldValueAdapter());
+            Gson gson = gsonBuilder.create();
+            retval = gson.toJson(mmtevent);
+            
+        }
+              
         return retval;
     }
 
